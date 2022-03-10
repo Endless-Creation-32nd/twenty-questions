@@ -6,6 +6,9 @@ import { InputHTMLAttributes, useEffect, useRef, useState } from "react";
 import AccessAlarmIcon from "@mui/icons-material/AccessAlarm";
 import { User } from "../types";
 import { useNavigate } from "react-router";
+import CheckIcon from "@mui/icons-material/Check";
+import ClearIcon from "@mui/icons-material/Clear";
+import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
 
 type GameProps = {
   users: User[];
@@ -16,11 +19,11 @@ const Game: React.FunctionComponent<GameProps> = ({ users, gameDuration }) => {
   const [progress, setProgress] = useState<number>(100);
   const [error, setError] = useState(false);
   const [input, setInput] = useState("");
-  const [questions, setQuestions] = useState<Array<{ content: string; isCorrect: boolean }>>([]);
+  const [questions, setQuestions] = useState<Array<{ content: string; isCorrect: number }>>([]);
   const [currentUserIndex, setCurrentUserIndex] = useState<number>(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const onCreateQuestion = (isCorrect: boolean) => {
+  const onCreateQuestion = (isCorrect: number) => {
     if (input === "") {
       setError(true);
       return;
@@ -68,16 +71,40 @@ const Game: React.FunctionComponent<GameProps> = ({ users, gameDuration }) => {
         <Grid item container md={7} xs={12} sx={{ flexDirection: "column", justifyContent: "center" }}>
           {users.length !== 0 && (
             <Layout>
-              <p className="title">
-                <span>{users[currentUserIndex].name}</span>님 질문해주세요!
-              </p>
+              {questions.length === 20 ? (
+                <p className="title">
+                  <span>질문을 모두 사용했습니다!</span>
+                </p>
+              ) : progress === 0 ? (
+                <p className="title">
+                  <span>시간이 모두 지났습니다!</span>
+                </p>
+              ) : (
+                <>
+                  <p className="title">
+                    <span>{users[currentUserIndex].name}</span>님 질문해주세요!
+                  </p>
+                  <p className="title">
+                    질문이<span>{20 - questions.length}</span>개 남았습니다!
+                  </p>
+                </>
+              )}
             </Layout>
           )}
         </Grid>
         <Grid item container md={5} xs={12} sx={{ flexDirection: "column" }}>
           <QuestionWrapper>
             {questions.map((item) => (
-              <Question isCorrect={item.isCorrect}>{item.content}</Question>
+              <Question isCorrect={item.isCorrect}>
+                {item.isCorrect === 0 ? (
+                  <CheckIcon className="icon" />
+                ) : item.isCorrect === 1 ? (
+                  <ClearIcon className="icon" />
+                ) : (
+                  <QuestionMarkIcon className="icon" />
+                )}
+                {item.content}
+              </Question>
             ))}
           </QuestionWrapper>
           <InputWrapper>
@@ -89,11 +116,14 @@ const Game: React.FunctionComponent<GameProps> = ({ users, gameDuration }) => {
               onChange={(e) => setInput(e.target.value)}
               className="input"
             />
-            <Button className="yes" onClick={() => onCreateQuestion(true)}>
-              예
+            <Button className="yes" onClick={() => onCreateQuestion(0)}>
+              네
             </Button>
-            <Button className="no" onClick={() => onCreateQuestion(false)}>
-              아니오
+            <Button className="no" onClick={() => onCreateQuestion(1)}>
+              아니요
+            </Button>
+            <Button className="draw" onClick={() => onCreateQuestion(2)}>
+              모르겠어요
             </Button>
           </InputWrapper>
         </Grid>
@@ -180,8 +210,12 @@ const Question = styled<any>(Box)(
     height: 1.2rem;
     border-radius: 5px;
     font-size: 1.2rem;
-    background-color: ${isCorrect ? "#9ccba5" : "#cc7777"};
+    background-color: ${isCorrect === 0 ? "#9ccba5" : isCorrect === 1 ? "#cc7777" : "#8f8f8f"};
     margin-bottom: 0.5rem;
+
+    .icon {
+      margin-right: 0.2rem;
+    }
   `
 );
 
@@ -198,6 +232,15 @@ const InputWrapper = styled(Box)(css`
     color: #36a049;
     :hover {
       background-color: #9ccba5;
+      color: white;
+    }
+  }
+
+  .draw {
+    width: 5rem;
+    color: #8f8f8f;
+    :hover {
+      background-color: #666565;
       color: white;
     }
   }
