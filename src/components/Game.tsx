@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { css } from "@emotion/react";
+import { css, keyframes } from "@emotion/react";
 import { Alert, Avatar, Button, Grid, LinearProgress, Snackbar, TextField } from "@mui/material";
 import { Box, styled } from "@mui/system";
 import { InputHTMLAttributes, useEffect, useRef, useState } from "react";
@@ -56,8 +56,8 @@ const Game: React.FunctionComponent<GameProps> = ({ users, gameDuration }) => {
   }, []);
 
   return (
-    <Wrapper>
-      <AccessAlarmIcon />
+    <Wrapper progress={progress}>
+      <AccessAlarmIcon className="logo" />
       {Math.floor((progress / 100) * gameDuration)}초
       <Box sx={{ width: "100%" }}>
         <Line variant="determinate" value={progress} progress={progress} />
@@ -146,26 +146,57 @@ const Game: React.FunctionComponent<GameProps> = ({ users, gameDuration }) => {
 
 export default Game;
 
-const Wrapper = styled(Box)(css`
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-`);
+const Wrapper = styled<any>(Box)(
+  ({ progress }) => css`
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .logo {
+      width: 2rem;
+      height: 2rem;
+      margin: 0.2rem 0;
+      animation: ${progress < 50 && move} 1s ease infinite;
+    }
+  `
+);
+
+const move = keyframes`
+  0% {
+    transform: rotate(0turn);
+  }
+
+  20% {
+    transform: rotate(-0.1turn);
+  }
+
+  40% {
+    transform: rotate(0.12turn);
+  }
+
+  60% {
+    transform: rotate(-0.08turn);
+  }
+
+  80% {
+    transform: rotate(0turn);
+  }
+`;
 
 const Line = styled<any>(LinearProgress)(
   ({ progress }) => css`
-    background-color: ${progress < 10 ? "#f9d0d0" : "rgb(167, 202, 237)"};
+    background-color: ${progress < 10 ? "#f9d0d0" : progress < 50 ? "#fff6d7" : "rgb(167, 202, 237)"};
     .MuiLinearProgress-bar {
-      background-color: ${progress < 10 ? "#f95858" : "#1976d2"};
+      background-color: ${progress < 10 ? "#f95858" : progress < 50 ? "#f8db7b" : "#1976d2"};
     }
   `
 );
 
 const UserList = styled(Box)(css`
-  margin: 0.5rem 0;
+  margin: 1rem 0;
   display: flex;
   .MuiAvatar-root + .MuiAvatar-root {
     margin-left: 0.5rem;
@@ -198,7 +229,7 @@ const QuestionWrapper = styled(Box)(css`
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 15rem);
+  height: calc(100vh - 17rem);
   overflow: auto;
 `);
 
