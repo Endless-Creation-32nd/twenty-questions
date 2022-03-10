@@ -5,6 +5,7 @@ import { Box, styled } from "@mui/system";
 import { InputHTMLAttributes, useEffect, useRef, useState } from "react";
 import AccessAlarmIcon from "@mui/icons-material/AccessAlarm";
 import { User } from "../types";
+import { useNavigate } from "react-router";
 
 type GameProps = {
   users: User[];
@@ -30,8 +31,12 @@ const Game: React.FunctionComponent<GameProps> = ({ users, gameDuration }) => {
     if (inputRef.current !== null) inputRef.current.focus();
     console.log(inputRef.current);
   };
+  const navigate = useNavigate();
 
   useEffect(() => {
+    if (users.length === 0) {
+      navigate("/");
+    }
     const timer = setInterval(() => {
       setProgress((oldProgress) => {
         if (oldProgress <= 0) {
