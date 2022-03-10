@@ -17,7 +17,7 @@ type GameProps = {
 
 const Game: React.FunctionComponent<GameProps> = ({ users, gameDuration }) => {
   const [progress, setProgress] = useState<number>(100);
-  const [error, setError] = useState(false);
+  const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [questions, setQuestions] = useState<Array<{ content: string; isCorrect: number }>>([]);
   const [currentUserIndex, setCurrentUserIndex] = useState<number>(0);
@@ -25,7 +25,7 @@ const Game: React.FunctionComponent<GameProps> = ({ users, gameDuration }) => {
 
   const onCreateQuestion = (isCorrect: number) => {
     if (input === "") {
-      setError(true);
+      setOpen(true);
       return;
     }
     setQuestions(questions.concat({ content: input, isCorrect }));
@@ -40,6 +40,7 @@ const Game: React.FunctionComponent<GameProps> = ({ users, gameDuration }) => {
     if (users.length === 0) {
       navigate("/");
     }
+
     const timer = setInterval(() => {
       setProgress((oldProgress) => {
         if (oldProgress <= 0) {
@@ -50,10 +51,15 @@ const Game: React.FunctionComponent<GameProps> = ({ users, gameDuration }) => {
       });
     }, 100);
 
+    if (questions.length === 20 || progress === 0) {
+      clearInterval(timer);
+      setOpen(true);
+    }
+
     return () => {
       clearInterval(timer);
     };
-  }, []);
+  }, [questions, progress]);
 
   return (
     <Wrapper progress={progress}>
@@ -72,11 +78,11 @@ const Game: React.FunctionComponent<GameProps> = ({ users, gameDuration }) => {
           {users.length !== 0 && (
             <Layout>
               {questions.length === 20 ? (
-                <p className="title">
+                <p className="alert">
                   <span>질문을 모두 사용했습니다!</span>
                 </p>
               ) : progress === 0 ? (
-                <p className="title">
+                <p className="alert">
                   <span>시간이 모두 지났습니다!</span>
                 </p>
               ) : (
@@ -107,37 +113,39 @@ const Game: React.FunctionComponent<GameProps> = ({ users, gameDuration }) => {
               </Question>
             ))}
           </QuestionWrapper>
-          <InputWrapper>
-            <TextField
-              inputRef={inputRef}
-              autoFocus
-              size="small"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              className="input"
-            />
-            <Button className="yes" onClick={() => onCreateQuestion(0)}>
-              네
-            </Button>
-            <Button className="no" onClick={() => onCreateQuestion(1)}>
-              아니요
-            </Button>
-            <Button className="draw" onClick={() => onCreateQuestion(2)}>
-              모르겠어요
-            </Button>
-          </InputWrapper>
+          {!(questions.length === 20 || progress === 0) && (
+            <InputWrapper>
+              <TextField
+                inputRef={inputRef}
+                autoFocus
+                size="small"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                className="input"
+              />
+              <Button className="yes" onClick={() => onCreateQuestion(0)}>
+                네
+              </Button>
+              <Button className="no" onClick={() => onCreateQuestion(1)}>
+                아니요
+              </Button>
+              <Button className="draw" onClick={() => onCreateQuestion(2)}>
+                모르겠어요
+              </Button>
+            </InputWrapper>
+          )}
         </Grid>
       </Grid>
       <Snackbar
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        open={error}
+        open={open}
         autoHideDuration={3000}
         onClose={() => {
-          setError(false);
+          setOpen(false);
         }}
       >
-        <Alert severity="error" sx={{ width: "100%" }} onClose={() => setError(false)}>
-          질문을 다시 작성해주세요!
+        <Alert severity="error" sx={{ width: "100%" }} onClose={() => setOpen(false)}>
+          {questions.length === 20 || progress === 0 ? "게임이 종료되었습니다!" : "질문을 다시 작성해주세요!"}
         </Alert>
       </Snackbar>
     </Wrapper>
@@ -218,10 +226,16 @@ const Layout = styled(Box)(css`
 
   .title {
     font-size: 2rem;
+    span {
+      color: #4965a3;
+    }
   }
 
-  span {
-    color: #4965a3;
+  .alert {
+    font-size: 2rem;
+    span {
+      color: #cc7777;
+    }
   }
 `);
 
