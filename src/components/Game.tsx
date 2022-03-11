@@ -74,7 +74,7 @@ const Game: React.FunctionComponent<GameProps> = ({ users, gameDuration }) => {
         ))}
       </UserList>
       <Grid container sx={{ flex: 1 }}>
-        <Grid item container md={7} xs={12} sx={{ flexDirection: "column", justifyContent: "center" }}>
+        <Grid item container md={6} xs={12} sx={{ flexDirection: "column", justifyContent: "center" }}>
           {users.length !== 0 && (
             <Layout>
               {questions.length === 20 ? (
@@ -98,20 +98,22 @@ const Game: React.FunctionComponent<GameProps> = ({ users, gameDuration }) => {
             </Layout>
           )}
         </Grid>
-        <Grid item container md={5} xs={12} sx={{ flexDirection: "column" }}>
+        <Grid item container md={6} xs={12} sx={{ flexDirection: "column" }}>
           <QuestionWrapper>
-            {questions.map((item) => (
-              <Question isCorrect={item.isCorrect}>
-                {item.isCorrect === 0 ? (
-                  <CheckIcon className="icon" />
-                ) : item.isCorrect === 1 ? (
-                  <ClearIcon className="icon" />
-                ) : (
-                  <QuestionMarkIcon className="icon" />
-                )}
-                {item.content}
-              </Question>
-            ))}
+            <QuestionList>
+              {questions.map((item) => (
+                <Question isCorrect={item.isCorrect}>
+                  {item.isCorrect === 0 ? (
+                    <CheckIcon className="icon" />
+                  ) : item.isCorrect === 1 ? (
+                    <ClearIcon className="icon" />
+                  ) : (
+                    <QuestionMarkIcon className="icon" />
+                  )}
+                  {item.content}
+                </Question>
+              ))}
+            </QuestionList>
           </QuestionWrapper>
           {!(questions.length === 20 || progress === 0) && (
             <InputWrapper>
@@ -160,14 +162,14 @@ const Wrapper = styled<any>(Box)(
     height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
 
     .logo {
       width: 2rem;
       height: 2rem;
       margin: 0.2rem 0;
-      animation: ${progress < 50 && move} 1s ease infinite;
+      animation: ${progress < 50 && move}
+        ${progress === 0 ? "0s" : progress < 10 ? "0.5s" : progress < 50 ? "1s" : "0s"} ease infinite;
     }
   `
 );
@@ -241,10 +243,13 @@ const Layout = styled(Box)(css`
 
 const QuestionWrapper = styled(Box)(css`
   padding: 1rem;
+  overflow: auto;
+  flex: 1;
+`);
+
+const QuestionList = styled(Box)(css`
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 17rem);
-  overflow: auto;
 `);
 
 const Question = styled<any>(Box)(
@@ -273,7 +278,7 @@ const InputWrapper = styled(Box)(css`
   }
 
   .yes {
-    width: 5rem;
+    width: 6rem;
     color: #36a049;
     :hover {
       background-color: #9ccba5;
@@ -282,7 +287,7 @@ const InputWrapper = styled(Box)(css`
   }
 
   .draw {
-    width: 5rem;
+    width: 6rem;
     color: #8f8f8f;
     :hover {
       background-color: #666565;
@@ -291,7 +296,7 @@ const InputWrapper = styled(Box)(css`
   }
 
   .no {
-    width: 5rem;
+    width: 6rem;
     color: #ca6060;
     :hover {
       background-color: #cc7777;

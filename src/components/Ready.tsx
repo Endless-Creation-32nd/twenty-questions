@@ -45,6 +45,7 @@ const Ready: React.FunctionComponent<ReadyProps> = ({
         placeholder="참가자를 입력하세요"
         onKeyPress={(e) => {
           if (e.key === "Enter") {
+            if (input === "") return;
             appendUser(input);
             setInput("");
           }
