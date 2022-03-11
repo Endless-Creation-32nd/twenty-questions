@@ -22,6 +22,7 @@ const Game: React.FunctionComponent<GameProps> = ({ users, gameDuration }) => {
   const [questions, setQuestions] = useState<Array<{ content: string; isCorrect: number }>>([]);
   const [currentUserIndex, setCurrentUserIndex] = useState<number>(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const questionListRef = useRef<any>(null);
 
   const onCreateQuestion = (isCorrect: number) => {
     if (input === "") {
@@ -61,6 +62,10 @@ const Game: React.FunctionComponent<GameProps> = ({ users, gameDuration }) => {
     };
   }, [questions, progress]);
 
+  useEffect(() => {
+    questionListRef.current.scrollIntoView({ behavior: "smooth" });
+  }, [questions]);
+
   return (
     <Wrapper progress={progress}>
       <AccessAlarmIcon className="logo" />
@@ -98,7 +103,7 @@ const Game: React.FunctionComponent<GameProps> = ({ users, gameDuration }) => {
             </Layout>
           )}
         </Grid>
-        <Grid item container md={6} xs={12} sx={{ flexDirection: "column" }}>
+        <Grid item md={6} xs={12}>
           <QuestionWrapper>
             <QuestionList>
               {questions.map((item) => (
@@ -113,29 +118,30 @@ const Game: React.FunctionComponent<GameProps> = ({ users, gameDuration }) => {
                   {item.content}
                 </Question>
               ))}
+              <div ref={questionListRef}></div>
             </QuestionList>
+            {!(questions.length === 20 || progress === 0) && (
+              <InputWrapper>
+                <TextField
+                  inputRef={inputRef}
+                  autoFocus
+                  size="small"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  className="input"
+                />
+                <Button className="yes" onClick={() => onCreateQuestion(0)}>
+                  네
+                </Button>
+                <Button className="no" onClick={() => onCreateQuestion(1)}>
+                  아니요
+                </Button>
+                <Button className="draw" onClick={() => onCreateQuestion(2)}>
+                  모르겠어요
+                </Button>
+              </InputWrapper>
+            )}
           </QuestionWrapper>
-          {!(questions.length === 20 || progress === 0) && (
-            <InputWrapper>
-              <TextField
-                inputRef={inputRef}
-                autoFocus
-                size="small"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                className="input"
-              />
-              <Button className="yes" onClick={() => onCreateQuestion(0)}>
-                네
-              </Button>
-              <Button className="no" onClick={() => onCreateQuestion(1)}>
-                아니요
-              </Button>
-              <Button className="draw" onClick={() => onCreateQuestion(2)}>
-                모르겠어요
-              </Button>
-            </InputWrapper>
-          )}
         </Grid>
       </Grid>
       <Snackbar
@@ -226,6 +232,12 @@ const Layout = styled(Box)(css`
   align-items: center;
   justify-content: center;
 
+  @media screen and (max-width: 900px) {
+    .title {
+      margin: 1rem;
+    }
+  }
+
   .title {
     font-size: 2rem;
     span {
@@ -242,14 +254,20 @@ const Layout = styled(Box)(css`
 `);
 
 const QuestionWrapper = styled(Box)(css`
+  height: calc(100% - 2rem);
+  max-height: calc(100% - 2rem);
   padding: 1rem;
-  overflow: auto;
-  flex: 1;
 `);
 
 const QuestionList = styled(Box)(css`
+  height: calc(100vh - 15.5rem);
   display: flex;
   flex-direction: column;
+  overflow: auto;
+
+  @media screen and (max-width: 900px) {
+    height: calc(100vh - 30rem);
+  }
 `);
 
 const Question = styled<any>(Box)(
@@ -271,6 +289,12 @@ const Question = styled<any>(Box)(
 
 const InputWrapper = styled(Box)(css`
   display: flex;
+  z-index: 1000;
+  background-color: white;
+  position: sticky;
+  bottom: 0;
+  align-items: center;
+  height: 2.5rem;
   padding: 1rem;
   .input {
     flex: 1;
