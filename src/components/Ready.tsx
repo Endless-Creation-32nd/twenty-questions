@@ -3,6 +3,7 @@ import { css } from "@emotion/react";
 import { Alert, Box, Button, Chip, InputAdornment, Snackbar, TextField } from "@mui/material";
 import { styled } from "@mui/system";
 import React, { useState } from "react";
+import { useRef } from "react";
 import { useNavigate } from "react-router";
 import { ReactComponent as Logo } from "../assets/logo.svg";
 import { User } from "../types";
@@ -24,11 +25,13 @@ const Ready: React.FunctionComponent<ReadyProps> = ({
 }) => {
   const [input, setInput] = useState("");
   const [error, setError] = useState(false);
+  const inputRef = useRef<any>(null);
   const navigate = useNavigate();
 
   const onGameStart = () => {
     if (users.length === 0) {
       setError(true);
+      inputRef.current.focus();
     } else {
       navigate("/game");
     }
@@ -38,6 +41,7 @@ const Ready: React.FunctionComponent<ReadyProps> = ({
     <Wrapper>
       <Logo className="logo" />
       <Input
+        inputRef={inputRef}
         value={input}
         size="small"
         autoFocus

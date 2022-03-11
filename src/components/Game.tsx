@@ -27,6 +27,7 @@ const Game: React.FunctionComponent<GameProps> = ({ users, gameDuration }) => {
   const onCreateQuestion = (isCorrect: number) => {
     if (input === "") {
       setOpen(true);
+      if (inputRef.current !== null) inputRef.current.focus();
       return;
     }
     setQuestions(questions.concat({ content: input, isCorrect }));
